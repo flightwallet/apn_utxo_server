@@ -20,7 +20,6 @@ unspent_output_schema = Schema({
     'script': Or(str, unicode),
     'value': int,
     'vout': int,
-    'confirmations': int
 })
 
 unspent_outputs_schema = Schema({
