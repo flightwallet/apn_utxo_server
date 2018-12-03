@@ -8,18 +8,20 @@ import json
 mongoengine.connect()
 redis = Redis()
 
+
 class Wallet(Document):
     address = StringField(required=True)
     device_token = StringField(required=True)
     
-    
+
 class UTOX(EmbeddedDocument):
     tx_hash = StringField(required=True)
     script = StringField(required=True)
     value = FloatField(required=True)
     vout = IntField(required=True)
     confirmations = IntField(required=True)
-    
+
+
 class AddressUTOX(Document):
     address = StringField(required=True)
     UTOX = ListField(EmbeddedDocumentField(UTOX))
