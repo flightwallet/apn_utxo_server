@@ -9,8 +9,12 @@ import json
 
 app = Flask(__name__)
 
+
 @app.route('/subscribe', methods=['POST'])
 def route_server():
+    """
+    Add new wallet with POST
+    """
     wallet_raw = json.loads(frequest.data)
     wallet = {}
     try:
@@ -18,13 +22,15 @@ def route_server():
         wallet['device_token'] = wallet_raw['deviceToken']
     except KeyError:
         pass
-    
     add_wallet_to_db(wallet)
     return 'true'
 
 def main():
-    config.apns = create_apn_service(cert_file=config.CERT_FILE, key_file=config.KEY_FILE)
+    # init Apple Push Notification Client
+    config.apns = create_apn_service()
+    # background notifications
     start_background_push_notifications()
+    # Flask server for registration
     app.run(host=config.HOST, port=config.PORT)
 
 if __name__ == "__main__":

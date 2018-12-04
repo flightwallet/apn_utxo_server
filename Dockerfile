@@ -10,11 +10,8 @@ RUN apt-get -y update && \
     bzip2 gcc git wget g++ build-essential libc6-dev make pkg-config \
     golang-1.10-go libzmq3-dev
 
-# install
-RUN curl -O https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh
-RUN bash Miniconda3-latest-Linux-x86_64.sh -b -p /root/miniconda
-
-# activate
+# install python
+RUN curl -O https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh && bash Miniconda2-latest-Linux-x86_64.sh -b -p /root/miniconda && rm Miniconda2-latest-Linux-x86_64.sh
 ENV PATH /root/miniconda/bin:$PATH
 RUN conda update -n base conda
 RUN pip install --upgrade pip
@@ -41,4 +38,24 @@ ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 RUN node -v
 RUN npm -v
 
+# MongoDB
+RUN sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4 && \
+    echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list && \
+    sudo apt-get update &&  sudo apt-get install -y mongodb-org
+# sudo mongod --fork --logpath /var/log/mongodb.log
+pip install uwsgi
 
+# redis
+RUN wget http://download.redis.io/redis-stable.tar.gz && tar xvzf redis-stable.tar.gz && cd redis-stable && \
+    make && make install && cd .. && rm redis-stable.tar.gz && rm -rf redis-stable
+# redis-server --daemonize yes
+
+# apns python
+RUN pip install gobiko.apns
+
+# bitcore
+RUN npm install -g bitcore && bitcore install -g insight-api && bitcore -g install insight-ui
+
+WORKDIR /root/mynode
+# TODO: volumes for bitcore and MongoDB
+ENTRYPOINT ["nohup", "bitcore", "start", ">log.log", "&"]

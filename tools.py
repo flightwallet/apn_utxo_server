@@ -20,7 +20,6 @@ unspent_output_schema = Schema({
     'script': Or(str, unicode),
     'value': int,
     'vout': int,
-    'confirmations': int
 })
 
 unspent_outputs_schema = Schema({
@@ -29,29 +28,33 @@ unspent_outputs_schema = Schema({
 })
 
 def preprocess_output(output):
+    """
+    Preprocessing raw output form insight-api
+    """
     output_processed = {
         'value': output['satoshis'],
         'tx_hash': output['txid'],
         'script': output['scriptPubKey'],
-        'confirmations': output['confirmations'],
         'vout': output['vout']
     }
     unspent_output_schema.validate(output_processed)
     return output_processed
 
-def return_unspent_outputs(addresses):
-    # get data from blockchain
-    if not len(addresses):
-        return defaultdict(list)
-    r = requests.post(config.BASE_URL, data={'addrs':','.join(addresses)})
+
+def return_unspent_outputs(address):
+    """
+    Getting data from bitcore insight-api for one address
+    """
+    d = []
+    r = requests.post(config.BASE_URL, data={'addrs': address})
     try:
         raw_unspent_outputs = r.json()
     except ValueError:
-        return defaultdict(list)
-    d = defaultdict(list)
+        return []
+
     for raw_unspent_output in raw_unspent_outputs:
-        d[raw_unspent_output['address']].append(preprocess_output(raw_unspent_output))    
-    
+        d.append(preprocess_output(raw_unspent_output))
+
     return d
 
 

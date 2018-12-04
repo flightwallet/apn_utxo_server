@@ -1,0 +1,7 @@
+ version: '3'
+ services:
+     apn_utso_server:
+         image: vbelavin/apn_utso_server
+         volumes:
+              - ./mongodb:/data/db
+              - ./testnet:/root/mynode
